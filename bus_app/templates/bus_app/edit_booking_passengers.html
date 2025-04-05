@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Edit Passengers for {{ booking.bus }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        {% for passenger in booking.passengers.all %}
+            <div>
+                <input type="text" name="passenger_name_{{ passenger.id }}" value="{{ passenger.name }}" required>
+                <input type="number" name="passenger_age_{{ passenger.id }}" value="{{ passenger.age }}" required>
+            </div>
+        {% endfor %}
+        <button type="submit">Save Changes</button>
+    </form>
+{% endblock %}

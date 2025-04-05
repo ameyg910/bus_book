@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Bookings for {{ bus.bus_name }}</h1>
+    <ul>
+        {% for booking in bookings %}
+            <li>{{ booking.user }} - {{ booking.total_cost }}</li>
+        {% empty %}
+            <li>No bookings for this bus.</li>
+        {% endfor %}
+    </ul>
+    <p><a href="{% url 'export_bookings' bus.id %}">Export to Excel</a></p>
+    <p><a href="{% url 'admin_dashboard' %}">Back to Dashboard</a></p>
+{% endblock %}

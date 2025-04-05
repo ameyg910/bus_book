@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Add New Bus</h1>
+    <form method="post">
+        {% csrf_token %}
+        <input type="text" name="bus_name" placeholder="Bus Name" required><br>
+        <input type="text" name="days_of_week" placeholder="Days (e.g., Mon,Wed)" required><br>
+        <h3>Seat Classes</h3>
+        {% for class in 'General,Sleeper,Luxury' %}
+            <input type="number" name="{{ class|lower }}_seats" placeholder="{{ class }} Seats" min="0"><br>
+            <input type="number" name="{{ class|lower }}_fare" placeholder="{{ class }} Fare" step="0.01"><br>
+        {% endfor %}
+        <h3>Stops</h3>
+        <div id="stops">
+            <div>
+                <input type="text" name="stop_location" placeholder="Location" required>
+                <input type="datetime-local" name="stop_time" required>
+            </div>
+        </div>
+        <button type="button" onclick="addStop()">Add Stop</button><br>
+        <button type="submit">Add Bus</button>
+    </form>
+    <script>
+        function addStop() {
+            const div = document.createElement('div');
+            div.innerHTML = '<input type="text" name="stop_location" placeholder="Location" required>' +
+                            '<input type="datetime-local" name="stop_time" required>';
+            document.getElementById('stops').appendChild(div);
+        }
+    </script>
+{% endblock %}

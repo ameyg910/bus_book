@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Available Buses</h1>
+    {% if valid_buses %}
+        <ul>
+            {% for item in valid_buses %}
+                <li>{{ item.bus.bus_name }} ({{ item.source_stop.location }} to {{ item.dest_stop.location }}) 
+                    <a href="{% url 'book_ticket' item.bus.id %}?start={{ item.source_stop.id }}&end={{ item.dest_stop.id }}">Book</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No buses found for this route. <a href="{% url 'search_buses' %}">Search again</a></p>
+    {% endif %}
+{% endblock %}

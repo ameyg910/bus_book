@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Update {{ bus.bus_name }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        <input type="text" name="bus_name" value="{{ bus.bus_name }}" required><br>
+        <input type="text" name="source" value="{{ bus.source }}" required><br>
+        <input type="text" name="destination" value="{{ bus.destination }}" required><br>
+        <input type="number" name="fare" value="{{ bus.fare }}" step="0.01" required><br>
+        <input type="number" name="total_seats" value="{{ bus.total_seats }}" required><br>
+        <input type="datetime-local" name="departure_time" value="{{ bus.departure_time|date:'Y-m-d\TH:i' }}" required><br>
+        <input type="text" name="days_of_week" value="{{ bus.days_of_week }}" required><br>
+        <button type="submit">Update Bus</button>
+    </form>
+{% endblock %}

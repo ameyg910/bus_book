@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bus Booking System</title>
+</head>
+<body>
+    <header>
+        {% if user.is_authenticated %}
+            <p>Welcome, {{ user.username }}! | 
+               <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                   {% csrf_token %}
+                   <button type="submit" style="background:none;border:none;padding:0;color:blue;text-decoration:underline;cursor:pointer;">Logout</button>
+               </form>
+               {% if user.is_admin %}
+                   | <a href="{% url 'admin_dashboard' %}">Admin Dashboard</a>
+               {% else %}
+                   | <a href="{% url 'my_trips' %}">My Trips</a>
+               {% endif %}
+            </p>
+        {% else %}
+            <p><a href="{% url 'login' %}">Login</a> | 
+               <a href="/accounts/google/login/">Login with Google</a> | 
+               <a href="{% url 'signup' %}">Sign Up</a></p>
+        {% endif %}
+    </header>
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+</body>
+</html>

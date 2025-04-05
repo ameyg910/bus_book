@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Admin Dashboard</h1>
+    <h2>Buses</h2>
+    <ul>
+        {% for bus in buses %}
+            <li>{{ bus.bus_name }} ({{ bus.source }} to {{ bus.destination }}) - {{ bus.available_seats }} seats
+                <a href="{% url 'cancel_bus' bus.id %}">Cancel</a></li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'add_bus' %}">Add Bus</a>
+    <h2>Bookings</h2>
+    <ul>
+        {% for booking in bookings %}
+            <li>{{ booking.user }} - {{ booking.bus }} - {{ booking.total_cost }}</li>
+        {% endfor %}
+    </ul>
+    <li>{{ bus.bus_name }} ({{ bus.source }} to {{ bus.destination }}) - {{ bus.available_seats }} seats
+        <a href="{% url 'cancel_bus' bus.id %}">Cancel</a> | 
+        <a href="{% url 'bus_bookings' bus.id %}">View Bookings</a></li>
+        <li>{{ bus.bus_name }} ({{ bus.source }} to {{ bus.destination }}) - {{ bus.available_seats }} seats
+            <a href="{% url 'cancel_bus' bus.id %}">Cancel</a> | 
+            <a href="{% url 'bus_bookings' bus.id %}">View Bookings</a> | 
+            <a href="{% url 'update_bus' bus.id %}">Update</a></li>
+{% endblock %}

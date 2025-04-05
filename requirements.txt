@@ -1,0 +1,9 @@
+Django==4.2.11          # Core framework (stable LTS version)
+psycopg2-binary==2.9.9  # PostgreSQL adapter
+gunicorn==21.2.0        # Production WSGI server
+python-decouple==3.8    # For .env variables
+social-auth-app-django==5.4.0  # Google OAuth2 from Phase 1
+dj-database-url
+django-allauth
+gunicorn
+openpyxl

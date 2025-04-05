@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Book {{ bus.bus_name }}</h1>
+    {% if error %}
+        <p style="color:red">{{ error }}</p>
+    {% endif %}
+    <form method="post">
+        {% csrf_token %}
+        <select name="seat_class" required>
+            {% for seat_class in bus.seat_classes.all %}
+                <option value="{{ seat_class.id }}">{{ seat_class.class_type }} ({{ seat_class.fare }}) - {{ seat_class.available_seats }} available</option>
+            {% endfor %}
+        </select><br>
+        <input type="hidden" name="start_stop" value="{{ request.GET.start }}">
+        <input type="hidden" name="end_stop" value="{{ request.GET.end }}">
+        <div id="passengers">
+            <div>
+                <input type="text" name="passenger_name" placeholder="Name" required>
+                <input type="number" name="passenger_age" placeholder="Age" required>
+            </div>
+        </div>
+        <button type="button" onclick="addPassenger()">Add Passenger</button><br>
+        <button type="submit">Book</button>
+    </form>
+    <script>
+        function addPassenger() {
+            const div = document.createElement('div');
+            div.innerHTML = '<input type="text" name="passenger_name" placeholder="Name" required>' +
+                            '<input type="number" name="passenger_age" placeholder="Age" required>';
+            document.getElementById('passengers').appendChild(div);
+        }
+    </script>
+{% endblock %}
