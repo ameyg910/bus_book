@@ -4,7 +4,6 @@ from django.utils import timezone
 
 class User(AbstractUser):
     is_passenger = models.BooleanField(default=True)
-    is_admin = models.BooleanField(default=False)
     wallet_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     email_verified = models.BooleanField(default=False)  # New: Tracks email verification
     email_verification_token = models.CharField(max_length=100, blank=True, null=True)  # New: Token for link
@@ -12,6 +11,10 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    class Meta:
+        verbose_name = 'User'
+        verbose_name_plural = 'Users'
         
 class OTP(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

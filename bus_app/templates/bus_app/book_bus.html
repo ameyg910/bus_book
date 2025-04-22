@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+
+{% block title %}Book Bus - Bus Booking System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4>Bus Details</h4>
+                </div>
+                <div class="card-body">
+                    <h5>{{ bus.name }}</h5>
+                    <p>
+                        <i class="fas fa-route"></i> {{ bus.route }}<br>
+                        <i class="fas fa-clock"></i> {{ bus.departure_time }} - {{ bus.arrival_time }}<br>
+                        <i class="fas fa-chair"></i> {{ bus.seat_class|title }} | 
+                        <i class="fas fa-hourglass-half"></i> {{ bus.duration }}
+                    </p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h4>Select Seats</h4>
+                </div>
+                <div class="card-body">
+                    <div class="bus-layout mb-4">
+                        <div class="driver-seat text-center mb-3">
+                            <i class="fas fa-bus fa-2x"></i>
+                        </div>
+                        <div class="row g-2">
+                            {% for seat in seats %}
+                            <div class="col-3">
+                                <div class="seat {% if seat.is_booked %}booked{% else %}available{% endif %}"
+                                     data-seat-id="{{ seat.id }}">
+                                    <input type="checkbox" id="seat-{{ seat.id }}" name="seats" value="{{ seat.id }}"
+                                           {% if seat.is_booked %}disabled{% endif %}
+                                           class="seat-checkbox visually-hidden">
+                                    <label for="seat-{{ seat.id }}" class="seat-label">
+                                        {{ seat.number }}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="seat-legend">
+                        <span class="legend-item"><i class="fas fa-square available"></i> Available</span>
+                        <span class="legend-item"><i class="fas fa-square booked"></i> Booked</span>
+                        <span class="legend-item"><i class="fas fa-square selected"></i> Selected</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Booking Summary</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="bookingForm">
+                        {% csrf_token %}
+                        <div id="passengerForms">
+                            <!-- Passenger forms will be dynamically added here -->
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Total Amount</label>
+                            <h4 class="text-primary" id="totalAmount">₹0</h4>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Wallet Balance</label>
+                            <h5 class="text-success">₹{{ user.wallet.balance }}</h5>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100" id="bookButton" disabled>
+                            Proceed to Payment
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_css %}
+<style>
+.bus-layout {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+}
+.seat {
+    position: relative;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.seat.available {
+    background-color: #28a745;
+    color: white;
+}
+.seat.booked {
+    background-color: #dc3545;
+    color: white;
+    cursor: not-allowed;
+}
+.seat.selected {
+    background-color: #007bff;
+    color: white;
+}
+.seat-legend {
+    margin-top: 20px;
+    text-align: center;
+}
+.legend-item {
+    margin: 0 10px;
+}
+.legend-item i {
+    margin-right: 5px;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let selectedSeats = [];
+const seatPrice = {{ bus.price }};
+
+document.querySelectorAll('.seat-checkbox').forEach(function(checkbox) {
+    checkbox.addEventListener('change', function() {
+        const seatId = this.value;
+        if (this.checked) {
+            selectedSeats.push(seatId);
+            this.closest('.seat').classList.add('selected');
+        } else {
+            selectedSeats = selectedSeats.filter(function(id) {
+                return id !== seatId;
+            });
+            this.closest('.seat').classList.remove('selected');
+        }
+        updatePassengerForms();
+        updateTotalAmount();
+    });
+});
+
+function updatePassengerForms() {
+    const container = document.getElementById('passengerForms');
+    container.innerHTML = '';
+    
+    selectedSeats.forEach(function(seatId, index) {
+        const formGroup = document.createElement('div');
+        formGroup.className = 'mb-3';
+        formGroup.innerHTML = `
+            <h6>Passenger ${index + 1} (Seat ${document.querySelector(`#seat-${seatId}`).nextElementSibling.textContent})</h6>
+            <input type="text" class="form-control mb-2" name="passenger_names[]" placeholder="Full Name" required>
+            <input type="number" class="form-control mb-2" name="passenger_ages[]" placeholder="Age" required>
+            <input type="text" class="form-control" name="passenger_genders[]" placeholder="Gender" required>
+        `;
+        container.appendChild(formGroup);
+    });
+}
+
+function updateTotalAmount() {
+    const total = selectedSeats.length * seatPrice;
+    document.getElementById('totalAmount').textContent = `₹${total}`;
+    
+    const bookButton = document.getElementById('bookButton');
+    bookButton.disabled = selectedSeats.length === 0 || total > {{ user.wallet.balance }};
+}
+
+document.getElementById('bookingForm').addEventListener('submit', function(e) {
+    if (selectedSeats.length === 0) {
+        e.preventDefault();
+        alert('Please select at least one seat');
+    }
+});
+</script>
+{% endblock %}
+{% endblock %} 

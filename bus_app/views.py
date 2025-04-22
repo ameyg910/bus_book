@@ -18,6 +18,7 @@ import logging
 from .utils import send_verification_email, send_otp_email
 from .utils import send_booking_confirmation_email
 from .models import OTP 
+from django.urls import reverse
 
 def is_admin(user):
     return user.is_admin
@@ -170,37 +171,26 @@ def add_funds(request):
 
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
+    authentication_form = None
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            if request.user.is_admin:
-                return redirect('admin_dashboard')
+            if request.user.is_staff:  # Changed from is_admin to is_staff
+                return redirect('/admin/')
             return redirect('search_buses')
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
-        user = form.get_user()
-        auth_login(self.request, user)
-        if user.is_admin:
-            return redirect('admin_dashboard')
+        auth_login(self.request, form.get_user())
+        if form.get_user().is_staff:  # Changed from is_admin to is_staff
+            return redirect('/admin/')
         return redirect('search_buses')
-"""
-def signup(request):
-    if request.user.is_authenticated:
-        return redirect('/')
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.is_passenger = True
-            user.save()
-            send_verification_email(user)  # Send verification email
-            send_otp_email(user, 'signup')  # Send OTP
-            return redirect('verify_otp', purpose='signup', user_id=user.id)
-    else:
-        form = SignUpForm()
-    return render(request, 'bus_app/signup.html', {'form': form})
-"""
+
+    def get_success_url(self):
+        if self.request.user.is_staff:  # Changed from is_admin to is_staff
+            return '/admin/'
+        return reverse('search_buses')
+
 def signup(request):
     if request.user.is_authenticated:
         print("User already authenticated, redirecting to home")
@@ -336,3 +326,25 @@ def verify_email(request, token):
             return render(request, 'bus_app/message.html', {'message': 'Verification link has expired.'})
     except User.DoesNotExist:
         return render(request, 'bus_app/message.html', {'message': 'Invalid verification link.'})
+
+@login_required
+def wallet(request):
+    if request.method == 'POST':
+        amount = Decimal(request.POST.get('amount', 0))
+        if amount > 0:
+            request.user.wallet_balance += amount
+            request.user.save()
+            return redirect('wallet')
+    return render(request, 'bus_app/wallet.html')
+
+@login_required
+def profile(request):
+    if request.method == 'POST':
+        user = request.user
+        user.first_name = request.POST.get('first_name', user.first_name)
+        user.last_name = request.POST.get('last_name', user.last_name)
+        user.email = request.POST.get('email', user.email)
+        user.phone_number = request.POST.get('phone_number', user.phone_number)
+        user.save()
+        return redirect('profile')
+    return render(request, 'bus_app/profile.html')

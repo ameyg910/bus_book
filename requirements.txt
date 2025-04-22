@@ -2,8 +2,27 @@ Django==4.2.11          # Core framework (stable LTS version)
 psycopg2-binary==2.9.9  # PostgreSQL adapter
 gunicorn==21.2.0        # Production WSGI server
 python-decouple==3.8    # For .env variables
-social-auth-app-django==5.4.0  # Google OAuth2 from Phase 1
-dj-database-url
-django-allauth
-gunicorn
-openpyxl
+django-allauth==0.57.0  # Authentication
+openpyxl==3.1.2        # Excel export
+django-crispy-forms==2.1  # Form rendering
+crispy-bootstrap5==2023.10  # Bootstrap 5 forms
+django-environ==0.11.2  # Environment variables
+Pillow==10.2.0         # Image handling
+django-cleanup==7.0.0  # File cleanup
+django-widget-tweaks==1.5.0  # Form widget customization
+django-phonenumber-field==7.1.0  # Phone number validation
+phonenumbers==8.13.27  # Phone number formatting
+django-celery-beat==2.5.0  # Celery beat scheduler
+celery==5.3.6         # Task queue
+redis==5.0.1          # Redis for Celery
+django-redis==5.4.0   # Redis cache
+django-storages==1.14.2  # Cloud storage
+boto3==1.34.34        # AWS SDK
+django-compressor==4.4  # Static file compression
+django-debug-toolbar==4.2.0  # Debug toolbar
+django-extensions==3.2.3  # Development utilities
+django-filter==23.5    # Filtering
+djangorestframework==3.14.0  # REST API
+django-cors-headers==4.3.1  # CORS headers
+django-import-export==3.3.4  # Data import/export
+dj-database-url==2.1.0  # Database URL configuration

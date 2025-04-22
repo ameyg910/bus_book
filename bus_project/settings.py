@@ -11,13 +11,12 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-from decouple import config
+from decouple import config, Csv
 import os
 import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -28,7 +27,13 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
+# Security settings
+SECURE_PROXY_SSL_HEADER = None  # Disable SSL header for local development
+SESSION_COOKIE_SECURE = False   # Allow non-HTTPS cookies in development
+CSRF_COOKIE_SECURE = False      # Allow non-HTTPS CSRF cookies in development
+SECURE_SSL_REDIRECT = False     # Disable SSL redirect in development
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
@@ -57,12 +62,39 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'  # No email verification for simplicity
 ACCOUNT_AUTHENTICATION_METHOD = 'username_email'  # Allow login with username or email
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
-        'SCOPE': ['profile', 'email'],
-        'AUTH_PARAMS': {'access_type': 'online'},
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'OAUTH_PKCE_ENABLED': True,
+        'APP': {
+            'client_id': config('GOOGLE_CLIENT_ID'),
+            'secret': config('GOOGLE_CLIENT_SECRET'),
+            'key': ''
+        }
     }
 }
-SOCIALACCOUNT_ADAPTER = 'bus_app.adapters.CustomSocialAccountAdapter'
 
+# Account Settings
+ACCOUNT_LOGIN_METHODS = {'email', 'username'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_EMAIL_REQUIRED = True
+
+# Social Account Settings
+SOCIALACCOUNT_EMAIL_REQUIRED = True
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_ADAPTER = 'bus_app.adapters.CustomSocialAccountAdapter'
+SOCIALACCOUNT_STORE_TOKENS = True
 
 # Existing settings (like INSTALLED_APPS, DATABASES) remain unchanged
 # Add these at the bottom
@@ -134,8 +166,8 @@ DATABASES = {
         'NAME': config('POSTGRES_DB'),
         'USER': config('POSTGRES_USER'),
         'PASSWORD': config('POSTGRES_PASSWORD'),
-        'HOST': config('POSTGRES_HOST', default='localhost'),
-        'PORT': config('POSTGRES_PORT'),
+        'HOST': 'db',  # This matches the service name in docker-compose.yml
+        'PORT': '5432',
     }
 }
 

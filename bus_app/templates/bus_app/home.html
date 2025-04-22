@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Bus Booking System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-body p-5">
+                    <h2 class="text-center mb-4">Find Your Perfect Bus Journey</h2>
+                    <form method="get" action="{% url 'search_buses' %}" class="needs-validation" novalidate>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="from_city" class="form-label">From</label>
+                                <input type="text" class="form-control" id="from_city" name="from_city" required>
+                                <div class="invalid-feedback">
+                                    Please select departure city.
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="to_city" class="form-label">To</label>
+                                <input type="text" class="form-control" id="to_city" name="to_city" required>
+                                <div class="invalid-feedback">
+                                    Please select destination city.
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="date" class="form-label">Date</label>
+                                <input type="date" class="form-control" id="date" name="date" required>
+                                <div class="invalid-feedback">
+                                    Please select journey date.
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="seat_class" class="form-label">Seat Class</label>
+                                <select class="form-select" id="seat_class" name="seat_class">
+                                    <option value="">All Classes</option>
+                                    <option value="general">General</option>
+                                    <option value="sleeper">Sleeper</option>
+                                    <option value="luxury">Luxury</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">Search Buses</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if featured_buses %}
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3 class="text-center mb-4">Featured Buses</h3>
+            <div class="row">
+                {% for bus in featured_buses %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ bus.name }}</h5>
+                            <p class="card-text">
+                                <i class="fas fa-route"></i> {{ bus.route }}<br>
+                                <i class="fas fa-clock"></i> {{ bus.departure_time }}<br>
+                                <i class="fas fa-chair"></i> {{ bus.seat_class }}
+                            </p>
+                            <a href="{% url 'bus_detail' bus.id %}" class="btn btn-outline-primary">View Details</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% block extra_js %}
+<script>
+// Form validation
+(function () {
+    'use strict'
+    var forms = document.querySelectorAll('.needs-validation')
+    Array.prototype.slice.call(forms)
+        .forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+})()
+</script>
+{% endblock %}
+{% endblock %} 

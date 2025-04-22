@@ -1,14 +1,107 @@
 {% extends 'base.html' %}
+
+{% block title %}Search Results - Bus Booking System{% endblock %}
+
 {% block content %}
-    <h1>Available Buses</h1>
-    {% if valid_buses %}
-        <ul>
-            {% for item in valid_buses %}
-                <li>{{ item.bus.bus_name }} ({{ item.source_stop.location }} to {{ item.dest_stop.location }}) 
-                    <a href="{% url 'book_ticket' item.bus.id %}?start={{ item.source_stop.id }}&end={{ item.dest_stop.id }}">Book</a></li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No buses found for this route. <a href="{% url 'search_buses' %}">Search again</a></p>
-    {% endif %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2>Search Results</h2>
+            <p class="text-muted">
+                From: {{ from_city }} | To: {{ to_city }} | Date: {{ date }}
+                {% if seat_class %}
+                | Class: {{ seat_class|title }}
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Filters</h5>
+                </div>
+                <div class="card-body">
+                    <form method="get" id="filterForm">
+                        <div class="mb-3">
+                            <label class="form-label">Sort By</label>
+                            <select class="form-select" name="sort" onchange="this.form.submit()">
+                                <option value="departure_time" {% if sort == 'departure_time' %}selected{% endif %}>Departure Time</option>
+                                <option value="price" {% if sort == 'price' %}selected{% endif %}>Price</option>
+                                <option value="duration" {% if sort == 'duration' %}selected{% endif %}>Duration</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Seat Class</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="classes" value="general" 
+                                       {% if 'general' in selected_classes %}checked{% endif %} onchange="this.form.submit()">
+                                <label class="form-check-label">General</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="classes" value="sleeper"
+                                       {% if 'sleeper' in selected_classes %}checked{% endif %} onchange="this.form.submit()">
+                                <label class="form-check-label">Sleeper</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="classes" value="luxury"
+                                       {% if 'luxury' in selected_classes %}checked{% endif %} onchange="this.form.submit()">
+                                <label class="form-check-label">Luxury</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Price Range</label>
+                            <input type="range" class="form-range" min="0" max="5000" step="100" 
+                                   name="max_price" value="{{ max_price }}" onchange="updatePriceValue(this.value)">
+                            <p class="text-center">Max Price: ₹<span id="priceValue">{{ max_price }}</span></p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            {% if buses %}
+                {% for bus in buses %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h5 class="card-title">{{ bus.name }}</h5>
+                                <p class="card-text">
+                                    <i class="fas fa-route"></i> {{ bus.route }}<br>
+                                    <i class="fas fa-clock"></i> {{ bus.departure_time }} - {{ bus.arrival_time }}<br>
+                                    <i class="fas fa-chair"></i> {{ bus.seat_class|title }} | 
+                                    <i class="fas fa-hourglass-half"></i> {{ bus.duration }}<br>
+                                    <i class="fas fa-bus"></i> {{ bus.type }} | 
+                                    <i class="fas fa-users"></i> {{ bus.available_seats }} seats available
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-end">
+                                <h4 class="text-primary">₹{{ bus.price }}</h4>
+                                <p class="text-muted">per seat</p>
+                                <a href="{% url 'book_bus' bus.id %}" class="btn btn-primary">Book Now</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-info">
+                    No buses found matching your criteria. Please try different search parameters.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function updatePriceValue(value) {
+    document.getElementById('priceValue').textContent = value;
+    document.getElementById('filterForm').submit();
+}
+</script>
+{% endblock %}
 {% endblock %}

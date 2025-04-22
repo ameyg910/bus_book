@@ -1,16 +1,25 @@
 version: '3.8'
+
 services:
   web:
     build: .
     command: gunicorn --bind 0.0.0.0:8000 bus_project.wsgi:application
     volumes:
-      - static_volume:/app/static
-    expose:
-      - 8000
+      - .:/app
+      - static_volume:/app/staticfiles
+    ports:
+      - "8000:8000"
     env_file:
       - .env
+    environment:
+      - DJANGO_SETTINGS_MODULE=bus_project.settings
+      - PYTHONUNBUFFERED=1
+      - DJANGO_SECURE_SSL_REDIRECT=false
     depends_on:
       - db
+    networks:
+      - app_network
+
   db:
     image: postgres:15
     volumes:
@@ -18,17 +27,16 @@ services:
     env_file:
       - .env
     environment:
-      - POSTGRES_DB=bus_dvm
-      - POSTGRES_USER=amey_dvm
-      - POSTGRES_PASSWORD=@Ameyb1ts
-  nginx:
-    build: ./nginx
-    ports:
-      - 80:80
-    volumes:
-      - static_volume:/app/static
-    depends_on:
-      - web
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    networks:
+      - app_network
+
 volumes:
   postgres_data:
   static_volume:
+
+networks:
+  app_network:
+    driver: bridge
